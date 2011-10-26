@@ -23,7 +23,10 @@ import factual.HangmanGame;
  * 
  * <p>
  * This strategy is deterministic, such that it will always behave the same
- * against the same word. It will always fail against certain words.
+ * against the same word. It will always fail against certain words. Analysis
+ * has shown that failure is most likely on 3-5 letter words that easily change
+ * to another work with only one letter change (e.g., "bill", "dill", "fill",
+ * etc.).
  * 
  * <p>
  * There are state assumptions in this strategy, and it is not built to
@@ -91,7 +94,7 @@ public final class NaiveLikelihoodStrategy implements GuessingStrategy {
                 potentialWords = dictionary.getCandidates(soFar);
                 
                 // And we can assume at this point that the last guess was the
-                // first with the letter 'E'
+                // first with the letter 'E'.
                 if (soFar.indexOf('E') == soFar.lastIndexOf('E')) {
                     potentialWords = Utilities.filter(potentialWords,
                             new Predicate() {
@@ -128,6 +131,30 @@ public final class NaiveLikelihoodStrategy implements GuessingStrategy {
     }
 
     /**
+     * Run this (or any) strategy against a game until completion.
+     * 
+     * <p>
+     * I implemented this here as per the instructions. In my tests, I use the
+     * roughly equivalent method in {@code StrategyTester}.
+     * 
+     * @param game
+     *            Initialized game with the secret word set and ready to start.
+     * @param strategy
+     *            A valid strategy which will attempt to solve the secret word.
+     * 
+     * @return The final score of the game.
+     */
+    public static int run(HangmanGame game, GuessingStrategy strategy) {
+        if (game.gameStatus() != HangmanGame.Status.KEEP_GUESSING)
+            return game.currentScore();
+
+        while (game.gameStatus() == HangmanGame.Status.KEEP_GUESSING)
+            strategy.nextGuess(game).makeGuess(game);
+        
+        return game.currentScore();
+    }
+
+    /**
      * Clean up mutable state if it looks like a new game has started.
      */
     private void initializeState(HangmanGame game) {
@@ -140,8 +167,8 @@ public final class NaiveLikelihoodStrategy implements GuessingStrategy {
     /**
      * Get a subset of the collection that can still potentially match the
      * secret word. This method works because we narrow down the results with
-     * each pass, so we only need to check for the present or absence of the
-     * {@code lastGuess}, which keeps us from using a heavier-weigh regular
+     * each pass, so we only need to check for the presence or absence of the
+     * {@code lastGuess}, which keeps us from using a heavier-weight regular
      * expression.
      * 
      * @param soFar

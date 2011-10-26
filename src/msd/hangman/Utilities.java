@@ -41,7 +41,8 @@ final class Utilities {
      * Return the most frequently occurring letter in the words in the
      * collection. (Technically, only tracking each letter once per word.) In
      * the case of ties, this algorithm chooses the letter that occurs later in
-     * the alphabet.
+     * the alphabet. During testing, this appeared to be slightly more efficient
+     * and likely to guess earlier.
      * 
      * @param coll
      *            Set of words that are still valid answers to the current game.
@@ -59,7 +60,6 @@ final class Utilities {
         int max = -1;
         char mostLikely = 'A';
         for (char ch = 'A'; ch <= 'Z'; ch++) {
-//        for (char ch = 'Z'; ch >= 'A'; ch--) {
             max = Math.max(max, frequency[ch]);
             if (frequency[ch] == max)
                 mostLikely = ch;
